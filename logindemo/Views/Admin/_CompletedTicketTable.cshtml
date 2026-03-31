@@ -1,0 +1,32 @@
+﻿@model List<logindemo.Models.Ticket>
+
+<table class="table table-bordered table-hover align-middle text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>SI No</th>
+            <th>Ticket ID</th>
+            <th>Issue</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int count = 1;
+            foreach (var ticket in Model)
+            {
+                <tr>
+                    <td>@count</td>
+                    <td>@ticket.TicketId</td>
+                    <td>@ticket.Issue</td>
+                </tr>
+                count++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-muted">No completed tickets found.</td>
+            </tr>
+        }
+    </tbody>
+</table>

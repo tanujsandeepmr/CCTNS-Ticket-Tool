@@ -1,0 +1,28 @@
+ALTER TABLE Tickets ADD AdminRemarks NVARCHAR(1000) NULL;
+
+Add-Migration AddAdminRemarksField
+
+Update-Database
+
+
+USE [YourDatabaseName]; -- Change to your actual DB name
+GO
+
+-- 1. Add AdminRemarks for the Yellow Card/Status logic
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Tickets') AND name = 'AdminRemarks')
+BEGIN
+    ALTER TABLE Tickets ADD AdminRemarks NVARCHAR(1000) NULL;
+END
+
+-- 2. Add CompletedTime for the new column in your table
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Tickets') AND name = 'CompletedTime')
+BEGIN
+    ALTER TABLE Tickets ADD CompletedTime DATETIME NULL;
+END
+
+-- 3. Add PdfPath for the "View PDF" button logic
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Tickets') AND name = 'PdfPath')
+BEGIN
+    ALTER TABLE Tickets ADD PdfPath NVARCHAR(MAX) NULL;
+END
+GO

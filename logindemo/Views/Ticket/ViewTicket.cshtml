@@ -1,0 +1,503 @@
+﻿@model logindemo.Models.Ticket
+
+@{
+    ViewData["Title"] = "Admin - View Ticket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string user = User.Identity.Name?.ToLower() ?? "";
+    bool isReadOnly = (user == "cctnscell1" || user == "cctnscell2" || user == "nodalofficer");
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+    :root {
+        --gov-navy: #001529;
+        --gov-blue: #003a8c;
+        --accent-amber: #faad14;
+        --glass-white: rgba(255, 255, 255, 0.9);
+        --status-green: #2ecc71;
+    }
+
+    body {
+        background: #f4f7fa url('https://www.transparenttextures.com/patterns/cubes.png');
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #1e293b;
+    }
+
+    .main-viewport {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+        min-height: 100vh;
+    }
+
+    .content-container {
+        width: 100%;
+        max-width: 1250px;
+        animation: fadeInDown 0.6s ease-out;
+    }
+
+    .ticket-master-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 25px 70px -12px rgba(0, 21, 41, 0.12);
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        min-height: 750px;
+    }
+
+    .sidebar-info {
+        background: linear-gradient(185deg, var(--gov-navy) 0%, var(--gov-blue) 100%);
+        color: white;
+        padding: 50px 35px;
+        height: 100%;
+    }
+
+    .content-area {
+        padding: 55px;
+        background: white;
+    }
+
+    .data-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .sidebar-label {
+        color: rgba(255,255,255,0.5);
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .value-box-new {
+        background: #f8fafc;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #334155;
+        margin-bottom: 30px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .status-badge-premium {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-completed {
+        background-color: #28a745;
+        color: white;
+        --status-rgb: 40, 167, 69;
+    }
+
+    .status-pending {
+        background-color: #dc3545;
+        color: white;
+        --status-rgb: 220, 53, 69;
+        animation: status-pulse 2s infinite;
+    }
+
+    .status-warning-amber {
+        background-color: #f39c12;
+        color: white;
+        --status-rgb: 243, 156, 18;
+        animation: status-pulse 2s infinite;
+    }
+
+    @@keyframes status-pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(var(--status-rgb), 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 12px rgba(var(--status-rgb), 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(var(--status-rgb), 0);
+        }
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: white;
+        border-radius: 50%;
+        margin-right: 10px;
+        display: inline-block;
+        animation: blinker 1.2s linear infinite;
+    }
+
+    @@keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    .btn-premium-view {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-premium-view:hover {
+            border-color: #2563eb;
+            transform: translateY(-3px);
+            background: #f8fafc;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+    .icon-circle {
+        background: #eff6ff;
+        color: #2563eb;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .file-link-pill {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        transition: 0.3s;
+        text-decoration: none !important;
+        color: #475569;
+    }
+
+        .file-link-pill:hover {
+            border-color: var(--gov-blue);
+            transform: translateX(8px);
+            background: #f8fafc;
+        }
+
+    .evidence-img-sm {
+        border-radius: 16px;
+        cursor: pointer;
+        transition: 0.4s;
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+        .evidence-img-sm:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+</style>
+
+<div class="main-viewport">
+    <div class="content-container">
+        <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+            <div>
+                <span class="badge bg-white text-dark rounded-pill px-3 py-2 fw-bold small mb-2 shadow-sm border">
+                    <i class="bi bi-hash text-primary"></i> @Model.TicketId
+                </span>
+                <h2 class="fw-800 mb-0" style="color: var(--gov-navy); letter-spacing: -0.5px;">Case Investigation Details</h2>
+            </div>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-700 shadow-sm bg-white">
+                <i class="bi bi-arrow-left-circle me-2"></i> BACK TO SYSTEM
+            </a>
+        </div>
+
+        <div class="ticket-master-card">
+            <div class="row g-0 w-100">
+                <div class="col-lg-3">
+                    <div class="sidebar-info d-flex flex-column h-100">
+                        <div class="mb-5">
+                            <div class="status-badge-container">
+                                <div class="status-badge-premium @GetStatusClass(Model.Status)">
+                                    <span class="pulse-dot"></span>
+                                    @Model.Status?.ToUpper()
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="sidebar-label">Police Station</span>
+                            <div class="fw-800 fs-5 text-white">@Model.PoliceStationName</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="sidebar-label">Reporter Name</span>
+                            <div class="fw-700 text-white">@Model.ReporterName</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="sidebar-label">Emergency Priority</span>
+                            <div class="d-flex align-items-center gap-3 bg-white bg-opacity-10 p-2 rounded-3">
+                                <div class="rounded-circle @(Model.Priority == "High" ? "bg-danger" : "bg-warning") shadow" style="width:12px; height:12px;"></div>
+                                <span class="fw-bold text-uppercase small">@Model.Priority</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase d-block" style="font-size:0.6rem; letter-spacing: 1px;">Created At</label>
+                            <span class="fw-500 small">@Model.CreatedAt.ToString("MMM dd, yyyy")<br />@Model.CreatedAt.ToString("hh:mm tt")</span>
+                        </div>
+
+                        @if (Model.Status == "Completed" && Model.CompletedAt.HasValue)
+                        {
+                            <div class="mb-4">
+                                <label class="opacity-50 small fw-bold text-uppercase d-block text-success" style="font-size:0.6rem; letter-spacing: 1px;">Resolved At</label>
+                                <span class="fw-600 small text-success">@Model.CompletedAt.Value.ToString("MMM dd, yyyy")<br />@Model.CompletedAt.Value.ToString("hh:mm tt")</span>
+                            </div>
+                        }   
+
+                    @*     @if (Model.UpdatedAt.HasValue)
+                        {
+                            <div class="mb-4">
+                                <span class="sidebar-label">Last Activity</span>
+                                <div class="small text-white opacity-75">@Model.UpdatedAt.Value.ToString("dd MMM yyyy, hh:mm tt")</div>
+                            </div>
+                        } *@
+
+                    @*     <div class="mt-auto pt-4">
+                            <span class="sidebar-label">Admin Remarks</span>
+                            @if (!string.IsNullOrEmpty(Model.AdminRemarks))
+                            {
+                                <div class="bg-white p-3 rounded-4 text-dark small border-start border-warning border-4 shadow-sm">
+                                    @Model.AdminRemarks
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="small opacity-50 italic">No historical logs found.</div>
+                            }
+                        </div> *@
+
+                        <div class="mt-auto pt-4">
+                            <span class="sidebar-label" style="color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">O&M REMARKS</span>
+
+                            @if (!string.IsNullOrEmpty(Model.AdminRemarks))
+                            {
+                                @* Logic: We split the string by the word "Rejected" or "Reason" 
+           and only take the very first part [0].
+        *@
+                                var cleanMessage = Model.AdminRemarks.Split(new[] { "Rejected", "Reason" }, StringSplitOptions.None)[0];
+
+                                <div class="bg-white p-3 rounded-4 text-dark shadow-sm border-start border-warning border-4 animate__animated animate__fadeIn"
+                                     style="font-size: 0.85rem; font-weight: 600; line-height: 1.4;">
+                                    <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                                    @cleanMessage.Trim()
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="small opacity-50 px-2" style="font-style: italic; color: #fff;">
+                                    Awaiting technical review...
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="content-area">
+                        <div class="mb-5">
+                            <span class="data-label">Subject Line</span>
+                            <h3 class="fw-800 text-dark">@Model.Issue</h3>
+                        </div>
+
+                        <div class="mb-5">
+                            <span class="data-label">Detailed Incident Report</span>
+                            <div class="value-box-new">@Model.Description</div>
+                        </div>
+
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <span class="data-label">Technical Evidence</span>
+                                @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                {
+                                    <img src="@Url.Content("~/" + Model.ImagePath)" class="evidence-img-sm"
+                                         data-bs-toggle="modal" data-bs-target="#imgModal"
+                                         onclick="updateModal('@Url.Content("~/" + Model.ImagePath)')">
+                                }
+                                else
+                                {
+                                    <div class="p-4 bg-light rounded-4 text-center text-muted small">No image uploaded</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <span class="data-label">Authenticated PDF Documents</span>
+                                @if (!string.IsNullOrEmpty(Model.ApprovalDocuments))
+                                {
+                                    foreach (var file in Model.ApprovalDocuments.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        var fileName = System.IO.Path.GetFileName(file.Trim());
+                                        <a href="@Url.Content(file.Trim())" target="_blank" class="file-link-pill">
+                                            <i class="bi bi-file-earmark-pdf-fill text-danger fs-3 me-3"></i>
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-800 small text-dark">@fileName</span>
+                                                <small class="text-muted" style="font-size: 10px;">Click to view document</small>
+                                            </div>
+                                        </a>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="p-4 bg-light rounded-4 text-center text-muted small">No documents found</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mt-5 pt-4 border-top">
+                            <h6 class="fw-800 mb-4 text-muted"><i class="bi bi-shield-check me-2"></i>COMPLIANCE & EVIDENCE HUB</h6>
+
+                     @*        @if (Model.Status == "Completed" && !string.IsNullOrEmpty(Model.UserFeedback))
+                            {
+                                <div class="p-4 bg-success bg-opacity-10 border border-success border-opacity-20 rounded-4 d-flex align-items-center mb-4 animate__animated animate__fadeInUp">
+                                    <i class="bi bi-chat-left-heart-fill text-success fs-2 me-4"></i>
+                                    <div>
+                                        <div class="fw-800 text-dark">Citizen Feedback Received</div>
+                                        <div class="text-muted small italic">"@Model.UserFeedback"</div>
+                                    </div>
+                                </div>
+                            } *@
+
+                            @if (!string.IsNullOrEmpty(Model.PdfPath))
+                            {
+                                <div class="p-4 bg-success bg-opacity-10 border border-success border-opacity-20 rounded-4 d-flex align-items-center shadow-sm mb-3">
+                                    <i class="bi bi-patch-check-fill text-success fs-1 me-4"></i>
+                                    <div>
+                                        <div class="fw-800 text-dark fs-5">Ticket Successfully Resolved</div>
+                                        <a href="@Url.Content("~" + Model.PdfPath)" target="_blank" class="btn-premium-view d-inline-flex align-items-center mt-3 text-decoration-none">
+                                            <div class="icon-circle me-3"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                                            <div class="text-start">
+                                                <div style="font-size: 0.65rem; font-weight: 800; color: #64748b; letter-spacing: 0.5px;">FINAL DOCUMENTATION</div>
+                                                <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b;">VIEW SIGNED REPORT <i class="bi bi-box-arrow-up-right ms-1"></i></div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                @if (isReadOnly)
+                                {
+                                    <div class="alert bg-light border-0 rounded-4 d-flex align-items-center p-3 mt-2">
+                                        <i class="bi bi-info-circle-fill text-warning me-3"></i>
+                                        <small class="text-muted fw-600">This record is finalized. Observation mode active.</small>
+                                    </div>
+                                }
+                            }
+                            else if (!isReadOnly)
+                            {
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <form asp-action="UploadCompletionPdf" method="post" enctype="multipart/form-data">
+                                            <input type="hidden" name="ticketId" value="@Model.Id" />
+                                            <div class="input-group">
+                                                <input type="file" name="pdfFile" accept="application/pdf" class="form-control border-2 p-2" style="border-radius: 14px 0 0 14px;" required />
+                                                <button type="submit" class="btn btn-primary px-4 fw-800" style="border-radius: 0 14px 14px 0;">VALIDATE & CLOSE</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" class="btn btn-outline-danger w-100 fw-800 h-100" style="border-radius: 14px;" data-bs-toggle="modal" data-bs-target="#pendingModal">
+                                            RAISE TECHNICAL QUERY
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4 border border-dashed rounded-4">
+                                    <span class="text-muted fw-600 italic"><i class="bi bi-hourglass-split me-2"></i>Awaiting Administrative Validation...</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modals and Scripts remain identical to preserve logic *@
+<div class="modal fade" id="imgModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="text-end mb-2"><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <img id="viewImg" src="" class="img-fluid rounded-4 shadow-lg" style="max-height: 85vh; width: 100%; object-fit: contain;" />
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pendingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="fw-800">Issue Technical Clarification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <textarea id="pendingRemarksInput" class="form-control border-2 p-3" rows="5" placeholder="Enter remarks for the station..."></textarea>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" onclick="submitPending(this)" class="btn btn-primary w-100 fw-800 py-3 rounded-3">SUBMIT TO STATION</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateModal(src) { document.getElementById('viewImg').src = src; }
+
+        function submitPending(btn) {
+            var remarks = $('#pendingRemarksInput').val();
+            if (!remarks.trim()) { alert("Clarification remarks are mandatory."); return; }
+            $(btn).prop('disabled', true).text('COMMUNICATING...');
+            $.post('@Url.Action("MarkAsPending", "Ticket")', { id: '@Model.Id', remarks: remarks.trim() })
+             .done(function () { window.location.reload(); })
+             .fail(function() { alert("Communication error."); $(btn).prop('disabled', false).text('RETRY'); });
+        }
+    </script>
+}
+
+@functions {
+    string GetStatusClass(string status)
+    {
+        return status?.ToLower().Trim() switch
+        {
+            "completed" => "status-completed",
+            "pending from police station" => "status-warning-amber",
+            "pending" => "status-pending",
+            "open" => "status-pending",
+            "re-opened" => "status-pending",
+            _ => "bg-secondary text-white"
+        };
+    }
+}

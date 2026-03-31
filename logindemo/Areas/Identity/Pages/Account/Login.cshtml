@@ -1,0 +1,386 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Secure Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>CCTNS - TICKET TOOL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --police-navy: #002147;
+            --premium-blue: #003366;
+            --glass-white: rgba(255, 255, 255, 0.92);
+            --accent-gold: #c5a059;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            /* High-end professional gradient background */
+            background: radial-gradient(circle at center, #1e3a8a 0%, #002147 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Pure White Logo Row to hide image backgrounds */
+        .logo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 50px;
+            background-color: #ffffff !important; /* Forces pure white to blend with JPG backgrounds */
+            border-bottom: 3px solid #e2e8f0;
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+            .logo-row img {
+                height: 85px;
+                width: auto;
+                /* Mix-blend-mode can help remove slight off-white tints if they exist */
+                mix-blend-mode: multiply;
+            }
+
+                .logo-row img:hover {
+                    transform: scale(1.05);
+                }
+
+        .logo-center-text {
+            text-align: center;
+            color: var(--police-navy);
+            text-transform: uppercase;
+        }
+
+            .logo-center-text small {
+                font-size: 15px;
+                letter-spacing: 2px;
+                font-weight: 600;
+                opacity: 0.8;
+            }
+
+            .logo-center-text strong {
+                font-size: 26px;
+                font-weight: 900;
+                display: block;
+                letter-spacing: 1px;
+            }
+
+
+        .glass-login-card {
+            /* Modern Frosted White Glass */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            /* Subtle Border & Shadow */
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            padding: 45px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+
+        .cctns-logo-main {
+            display: block;
+            margin: 0 auto 30px auto;
+            max-width: 190px;
+            mix-blend-mode: multiply; /* Blends JPG background into the glass */
+        }
+
+        /* Modern Rounded Inputs */
+        .input-group {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1.5px solid rgba(0, 33, 71, 0.15);
+            border-radius: 12px;
+            transition: 0.3s ease;
+        }
+
+            .input-group:focus-within {
+                border-color: #002147;
+                background: #ffffff;
+                box-shadow: 0 0 0 4px rgba(0, 33, 71, 0.1);
+            }
+
+        .btn-premium {
+            background: #002147;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: 100%;
+            border: none;
+            transition: 0.3s;
+        }
+
+        /* Main Content Grid */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 40px 8%;
+            gap: 50px;
+        }
+
+        /* Information Panel */
+        .left-panel {
+            flex: 1;
+            max-width: 550px;
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+            .left-panel h3 {
+                font-weight: 800;
+                color: var(--accent-gold);
+                margin-bottom: 20px;
+                border-left: 5px solid var(--accent-gold);
+                padding-left: 15px;
+            }
+
+            .left-panel p {
+                font-size: 18px;
+                line-height: 1.8;
+                opacity: 0.9;
+                font-weight: 400;
+            }
+
+        /* The Premium Login Box */
+        .login-card {
+            background: #ffffff;
+            padding: 45px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border-top: 6px solid var(--police-navy);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .cctns-brand {
+            display: block;
+            margin: 0 auto 30px auto;
+            max-width: 220px;
+        }
+
+        .form-label {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--police-navy);
+            margin-bottom: 8px;
+        }
+
+        .input-group-text {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: var(--police-navy);
+        }
+
+        .form-control {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #cbd5e1;
+            transition: all 0.2s;
+        }
+
+            .form-control:focus {
+                border-color: var(--police-navy);
+                box-shadow: 0 0 0 4px rgba(0, 33, 71, 0.1);
+            }
+
+        .btn-premium {
+            background: linear-gradient(to right, #002147, #004080);
+            border: none;
+            padding: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+            .btn-premium:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 33, 71, 0.3);
+                filter: brightness(1.1);
+            }
+
+        /* Bottom Footer */
+        .footer-premium {
+            background: var(--police-navy);
+            color: rgba(255,255,255,0.8);
+            padding: 25px;
+            text-align: center;
+            font-size: 13px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+            .footer-premium strong {
+                color: white;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+                padding: 40px 20px;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .logo-row {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+        }
+
+
+        #togglePassword:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .input-group .btn:hover i {
+            color: #002147 !important; /* Changes icon color to navy on hover */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="logo-row">
+        <div class="logo-left">
+            <img src="~/images/whatsapp image 2025-06-30 at 14.44.42_7b9b5059.jpg" alt="Gov Seal">
+        </div>
+
+        <div class="logo-center-text">
+            <small>Government of Puducherry</small>
+            <strong>Puducherry Police</strong>
+        </div>
+
+        <div class="logo-right d-flex gap-3">
+            <img src="~/images/pp image.jpg" alt="Police Emblem">
+            <img src="~/images/banner_of_puducherry.jpg" alt="Banner">
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <div class="left-panel shadow-lg">
+            <h3><i class="bi bi-info-square-fill me-2"></i>About CCTNS</h3>
+            <p>
+                The Crime and Criminal Tracking Network and Systems (CCTNS) is a nationwide mission-critical IT infrastructure designed to modernize policing through a comprehensive and integrated system for investigation tracking and information sharing.
+            </p>
+            <div class="d-flex align-items-center mt-4 text-warning">
+                <i class="bi bi-shield-check-fill fs-3 me-3"></i>
+                <span class="small fw-bold">Secure Authorized Access Only</span>
+            </div>
+        </div>
+
+        <div class="glass-login-card">
+            <img src="~/images/WhatsApp Image 2025-06-30 at 14.44.47_0e6a1dd9.jpg" class="cctns-brand" alt="CCTNS Logo" />
+
+            <form method="post" id="account">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.Email" class="form-label">OFFICIAL USERNAME</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        <input asp-for="Input.Email" class="form-control" placeholder="Enter Username" autocomplete="username" />
+                    </div>
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.Password" class="form-label">PASSWORD</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input asp-for="Input.Password" type="password" id="passwordField" class="form-control" placeholder="Enter Password" autocomplete="current-password" />
+                        <button class="btn border-0" type="button" id="togglePassword" style="background: transparent;">
+                            <i class="bi bi-eye-slash text-muted" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary btn-premium w-100 shadow">Login</button>
+            </form>
+
+            @if (TempData["AlreadyLoggedIn"] != null)
+            {
+                <div class="mt-4 p-3 rounded bg-light border border-warning">
+                    <p class="small text-danger fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Active Session Detected</p>
+                    <form method="post" asp-page-handler="LogoutOthers">
+                        <input type="hidden" name="UserId" value="@TempData["UserId"]" />
+                        <button type="submit" class="btn btn-danger btn-sm w-100">Terminate Other Sessions</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+
+    <footer class="footer-premium">
+        <div>
+            © <strong>Puducherry e-Governance Society (PeGS)</strong> | <strong>Directorate of Information Technology, Puducherry </strong>
+        </div>
+        <div class="opacity-100 mt-1" style="font-size: 12px;">
+            Last Update: Mar 30, 2026 | Version V 1.0.1 
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#passwordField');
+        const icon = document.querySelector('#toggleIcon');
+
+        togglePassword.addEventListener('click', function (e) {
+            // Toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Toggle the icon
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    </script>
+
+
+</body>
+</html>

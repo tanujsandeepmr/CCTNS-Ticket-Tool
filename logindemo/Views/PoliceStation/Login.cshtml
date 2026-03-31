@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Police Station Login";
+    var regError = TempData["RegError"] as string;
+    var regSuccess = TempData["RegSuccess"] as string;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5" style="max-width: 500px;">
+    <h3 class="text-center mb-4">Police Station Login</h3>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+    @if (!string.IsNullOrEmpty(regError))
+    {
+        <div class="alert alert-danger">@regError</div>
+    }
+    @if (!string.IsNullOrEmpty(regSuccess))
+    {
+        <div class="alert alert-success">@regSuccess</div>
+    }
+
+    <form method="post" asp-controller="PoliceStation" asp-action="Login">
+        <div class="mb-3">
+            <label class="form-label">Station Name</label>
+            <input type="text" name="stationName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Register New Station</a>
+    </div>
+</div>
+
+<!-- Register Popup Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-controller="PoliceStation" asp-action="Register">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Register Police Station</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Station Name</label>
+                        <input type="text" name="stationName" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

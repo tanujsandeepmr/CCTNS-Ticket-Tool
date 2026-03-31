@@ -1,0 +1,24 @@
+﻿@model logindemo.Models.PoliceStation
+@{
+    ViewData["Title"] = "Create Police Station";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Create New Police Station</h2>
+
+    <form asp-action="Create" method="post" class="card p-4 shadow">
+        <div class="mb-3">
+            <label asp-for="StationCode" class="form-label">Station Code</label>
+            <input asp-for="StationCode" class="form-control" />
+            <span asp-validation-for="StationCode" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StationName" class="form-label">Station Name</label>
+            <input asp-for="StationName" class="form-control" />
+            <span asp-validation-for="StationName" class="text-danger"></span>
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>

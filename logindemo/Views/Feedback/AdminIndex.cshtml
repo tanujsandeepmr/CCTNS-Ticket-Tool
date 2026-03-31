@@ -1,0 +1,186 @@
+﻿@model IEnumerable<logindemo.Models.Feedback>
+@{
+    ViewData["Title"] = "O&M Performance Analysis";
+    // Calculate quick stats
+    var avgCoop = Model.Any() ? Model.Average(x => x.CooperationRating).ToString("0.0") : "0";
+    var avgMaint = Model.Any() ? Model.Average(x => x.MaintenanceRating).ToString("0.0") : "0";
+}
+
+<div class="container-fluid py-4 px-md-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill x-small fw-bold mb-2">ADMINISTRATIVE OVERVIEW</span>
+            <h3 class="fw-bold text-dark mb-1">O&M Performance Review</h3>
+            <p class="text-muted small mb-0">Centralized monitoring of CCTNS operations across Puducherry Police Stations.</p>
+        </div>
+        <div class="text-end">
+            <button class="btn btn-outline-dark btn-sm rounded-3 shadow-sm" onclick="window.print()">
+                <i class="bi bi-printer me-2"></i>Export PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 rounded-4 bg-white">
+                <p class="text-muted x-small text-uppercase fw-bold mb-1">Total Submissions</p>
+                <h3 class="fw-bold mb-0">@Model.Count()</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 rounded-4 bg-white border-start border-primary border-4">
+                <p class="text-muted x-small text-uppercase fw-bold mb-1">Avg Cooperation</p>
+                <h3 class="fw-bold mb-0 text-primary">@avgCoop <span class="fs-6 text-muted">/ 5</span></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 rounded-4 bg-white border-start border-info border-4">
+                <p class="text-muted x-small text-uppercase fw-bold mb-1">Avg Maintenance</p>
+                <h3 class="fw-bold mb-0 text-info">@avgMaint <span class="fs-6 text-muted">/ 5</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-glass-card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr class="text-muted x-small fw-bold text-uppercase">
+                        <th class="ps-4 py-3">Police Station</th>
+                        <th class="text-center">Cooperation</th>
+                        <th class="text-center">Maintenance</th>
+                        <th>Observations / Remarks</th>
+                        <th class="text-end pe-4">Submission Date</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="station-icon me-2">@item.StationName.Substring(0, 1).ToUpper()</div>
+                                    <span class="fw-bold text-dark small">@item.StationName</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @(item.CooperationRating >= 4 ? "status-success" : "status-warning")">
+                                    @item.CooperationRating ★
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @(item.MaintenanceRating >= 4 ? "status-success" : "status-warning")">
+                                    @item.MaintenanceRating ★
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-muted x-small remarks-text" title="@item.Comments">
+                                    <i class="bi bi-chat-left-dots me-1 text-primary"></i> @item.Comments
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="fw-bold small text-dark">@item.SubmittedDate.ToString("dd MMM yyyy")</div>
+                                <div class="text-muted x-small">@item.SubmittedDate.ToString("hh:mm tt")</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .x-small {
+        font-size: 0.72rem;
+    }
+
+    .bg-primary-soft {
+        background: #eef2ff;
+    }
+
+    .main-glass-card {
+        background: white;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    /* Custom Badges */
+    .status-success {
+        background: #dcfce7;
+        color: #15803d;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    .status-warning {
+        background: #fef9c3;
+        color: #a16207;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    /* Table Styling */
+    .table thead th {
+        border-bottom: 1px solid #f1f5f9;
+        letter-spacing: 0.03em;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f8fbff;
+        }
+
+    .station-icon {
+        width: 32px;
+        height: 32px;
+        background: #1e293b;
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.8rem;
+    }
+
+    .remarks-text {
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-style: italic;
+    }
+
+    .stat-card {
+        transition: transform 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+    @@media print {
+        .btn, .badge-primary-soft {
+            display: none;
+        }
+
+        body {
+            background: white;
+        }
+    }
+</style>

@@ -1,0 +1,39 @@
+﻿@model logindemo.Models.Ticket
+
+<div class="modal-header">
+    <h5 class="modal-title">Ticket Details - @Model.TicketId</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <dl class="row">
+        <dt class="col-sm-4">Reporter</dt>
+        <dd class="col-sm-8">@Model.ReporterName</dd>
+
+        <dt class="col-sm-4">Issue</dt>
+        <dd class="col-sm-8">@Model.Issue</dd>
+
+        <dt class="col-sm-4">Description</dt>
+        <dd class="col-sm-8">@Model.Description</dd>
+
+        <dt class="col-sm-4">Status</dt>
+        <dd class="col-sm-8">@Model.Status</dd>
+
+        <dt class="col-sm-4">Priority</dt>
+        <dd class="col-sm-8">@Model.Priority</dd>
+
+        <dt class="col-sm-4">Created At</dt>
+        <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</dd>
+
+        @if (Model.Status == "Completed")
+        {
+            <dt class="col-sm-4">Completed At</dt>
+            <dd class="col-sm-8">@Model.CompletedAt?.ToString("dd MMM yyyy hh:mm tt")</dd>
+
+            <dt class="col-sm-4">Completed By</dt>
+            <dd class="col-sm-8">@Model.CompletedBy</dd>
+        }
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</div>

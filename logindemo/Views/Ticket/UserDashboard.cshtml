@@ -1,0 +1,552 @@
+﻿@model IEnumerable<logindemo.Models.Ticket>
+
+@{
+    ViewData["Title"] = "User Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@functions {
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Open" => "danger",
+            "Pending from Police Station" => "warning",
+            "Re-Opened" => "danger",
+            "Pending" => "secondary",
+            "Completed" => "success",
+            _ => "info"
+        };
+    }
+
+    public string GetPriorityClass(string priority)
+    {
+        return priority switch
+        {
+            "Urgent" => "dark-red",
+            "High" => "danger",
+            "Medium" => "primary",
+            "Low" => "secondary",
+            _ => "secondary"
+        };
+    }
+}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --header-black: #000000;
+        --text-black: #1a1a1a;
+        --lite-grey: #f4f7f9;
+    }
+
+    body {
+        background-color: var(--lite-grey) !important;
+        font-family: 'Inter', sans-serif;
+        color: var(--text-black);
+    }
+
+    .wide-container {
+        width: 96%;
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    /* 🏷️ HEADER - DARK BLACK */
+    .dashboard-title {
+        color: var(--header-black);
+        font-weight: 800;
+        letter-spacing: -1px;
+        text-transform: uppercase;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    /* 📊 SUMMARY CARDS - ORIGINAL COLORS */
+    .dashboard-summary {
+        display: flex;
+        gap: 1.2rem;
+        margin-bottom: 2.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .summary-card {
+        flex: 1;
+        min-width: 200px;
+        max-width: 280px;
+        padding: 1.5rem;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        transition: transform 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        border: none;
+    }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .summary-card .display-6 {
+            font-size: 2.2rem !important;
+            font-weight: 800;
+            margin: 0;
+        }
+
+    .total {
+        background: linear-gradient(135deg, #007bff, #0062cc);
+    }
+
+    .open {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+
+    .completed {
+        background: linear-gradient(135deg, #28a745, #218838);
+    }
+
+    .pendingfromstation {
+        background: linear-gradient(135deg, #f1c40f, #e3b200) !important;
+        color: #212529 !important;
+        animation: pulse-yellow 2s infinite;
+    }
+
+    /* 📋 COMPACT TABLE FORMATTING */
+    .table-container-glass {
+        background: #ffffff !important;
+        border-radius: 12px;
+        padding: 15px; /* Reduced from 25px */
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .table thead th {
+        background: #000000;
+        color: #ffffff;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.7rem; /* Reduced from 0.8rem */
+        padding: 10px 5px !important; /* Tightened padding */
+        border: none;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        color: var(--text-black);
+        font-weight: 500; /* Slightly lighter for better fit */
+        padding: 8px 5px !important; /* Reduced from 16px */
+        border-bottom: 1px solid #edf2f7;
+        font-size: 0.85rem; /* Standardized size */
+    }
+
+    .ticket-id-cell {
+        font-weight: 800 !important;
+        color: #000 !important;
+        font-size: 0.85rem !important; /* Made smaller */
+    }
+
+    /* Wrap description to prevent table stretching */
+    .desc-column {
+        max-width: 180px;
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
+
+    /* Make buttons smaller to save height */
+    .btn-sm {
+        padding: 2px 8px !important;
+        font-size: 0.65rem !important;
+    }
+
+    .btn-view-standard {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+
+    /* 🔍 SEARCH BAR */
+    .dataTables_filter input {
+        border: 2px solid #cbd5e0 !important;
+        border-radius: 50px !important;
+        padding: 10px 20px 10px 40px !important;
+        width: 350px !important;
+        background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23000' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 15px center !important;
+    }
+
+    .bg-dark-red {
+        background-color: #8b0000 !important;
+        color: white;
+    }
+
+    @@keyframes pulse-yellow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.6);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(241, 196, 15, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(241, 196, 15, 0);
+        }
+    }
+
+    .btn-view-standard {
+        display: inline-block;
+        padding: 6px 14px;
+        background-color: #0056b3; /* Professional Dark Blue */
+        color: #ffffff !important;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none !important;
+        border-radius: 4px; /* Standard square-ish button */
+        border: 1px solid #004a9b;
+        transition: background-color 0.2s ease;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+        .btn-view-standard:hover {
+            background-color: #004494; /* Slightly darker on hover */
+            color: #ffffff !important;
+        }
+
+        .btn-view-standard:active {
+            background-color: #003366;
+        }
+
+    /* Update your .completed class in the <style> section */
+    .completed {
+        background: linear-gradient(135deg, #28a745, #218838) !important;
+        color: #ffffff !important; /* Force white text */
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .completed h4, .completed .display-6 {
+            color: #ffffff !important; /* Ensure children are white */
+            margin: 0;
+        }
+
+</style>
+
+<div class="container-fluid wide-container mt-4">
+    <h2 class="text-center dashboard-title">
+        @(Model.FirstOrDefault()?.PoliceStationName ?? "Police Station") DASHBOARD
+    </h2>
+
+    <div class="dashboard-summary">
+        @* Total *@
+        <div class="summary-card total" onclick="filterTickets('Total')">
+            <h4>Total Tickets</h4>
+            <div class="display-6">@Model.Count()</div>
+        </div>
+
+        @* Action Required *@
+        @{
+            var psPending = Model.Count(t => t.Status == "Pending from Police Station");
+        }
+        @if (psPending > 0)
+        {
+            <div class="summary-card pendingfromstation" onclick="filterTickets('Pending from Police Station')">
+                <h4>Action Required</h4>
+                <div class="display-6">@psPending</div>
+                <small>Police Station Pending</small>
+            </div>
+        }
+
+        @* Pending *@
+        <div class="summary-card open" onclick="filterTickets('Pending')">
+            <h4>Pending</h4>
+            <div class="display-6">
+                @Model.Count(t => t.Status == "Pending" || t.Status == "Open" || t.Status == "Assigned" || t.Status == "Re-Opened")
+            </div>
+        </div>
+
+        @* Completed - DIRECT CALCULATION *@
+        <div class="summary-card completed" onclick="filterTickets('Completed')">
+            <h4>Completed</h4>
+            <div class="display-6">
+                @Model.Count(t => t.Status == "Completed")
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" href="/tickets/Ticket/Create">
+            <i class="fas fa-plus-circle me-1"></i> + Create Ticket
+        </a>
+    </div>
+
+    <div class="table-container-glass mb-5">
+        <div class="table-responsive">
+            <table id="ticketTable" class="table table-hover align-middle text-center mb-0" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Ticket ID</th>
+                        <th style="width: 12%;">Police Station</th>
+                        <th style="width: 10%;">Reporter</th>
+                        <th style="width: 10%;">Issue</th>
+                        <th style="width: 8%;">Priority</th>
+                        <th style="width: 10%;">Created</th>
+                        <th style="width: 10%;">Completed</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 12%;">Feedback</th>
+                        <th style="width: 5%;">Action</th>
+                    </tr>
+                </thead>
+                @*  <tbody>
+                    @foreach (var ticket in Model)
+                    {
+                        <tr data-status="@ticket.Status">
+                            <td class="ticket-id-cell">#@ticket.TicketId</td>
+                            <td style="font-size: 0.8rem;">@ticket.PoliceStationName</td>
+                            <td>@ticket.ReporterName</td>
+                            <td class="text-uppercase" style="font-size: 0.7rem;">@ticket.Issue</td>
+                            <td>
+                                <div class="desc-column text-truncate mx-auto" title="@ticket.Description">
+                                    @ticket.Description
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill @(ticket.Priority == "Urgent" ? "bg-dark-red" : "bg-" + GetPriorityClass(ticket.Priority))" style="font-size: 0.65rem;">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td style="font-size: 0.75rem;">@ticket.CreatedAt.ToString("dd/MM/yy")<br /><small>@ticket.CreatedAt.ToString("hh:mm tt")</small></td>
+                            <td style="font-size: 0.75rem;">
+                                @if (ticket.CompletedAt.HasValue)
+                                {
+                                    <span>@ticket.CompletedAt.Value.ToString("dd/MM/yy")</span>
+                            
+                                    <br />
+                                    <small class="text-success">@ticket.CompletedAt.Value.ToString("hh:mm tt")</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">---</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm fw-800 rounded-pill btn-@GetStatusClass(ticket.Status)">
+                                    @ticket.Status
+                                </button>
+                            </td>
+                            <td>
+                                <a asp-action="ViewUserTicket" asp-controller="Ticket" asp-route-id="@ticket.Id" class="btn-view-standard">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody> *@
+                <tbody>
+                    @* 1. Initialize variables BEFORE the loop starts *@
+                    @{
+                        int currentYear = DateTime.Now.Year % 100; // Gets 26
+                        int currentMonth = DateTime.Now.Month;    // Gets 03
+                        int rowCounter = 1;                       // Starts sequence at 001
+                    }
+
+                    @foreach (var ticket in Model)
+                    {
+                        <tr data-status="@ticket.Status">
+                            @* 2. Use the variables to create the CCTNS format sequence *@
+                            <td class="ticket-id-cell">
+                                #CCTNS@(currentYear.ToString("D2"))@(currentMonth.ToString("D2"))@(rowCounter.ToString("D3"))
+                            </td>
+
+                            <td style="font-size: 0.8rem;">@ticket.PoliceStationName</td>
+                            <td>@ticket.ReporterName</td>
+                            <td class="text-uppercase" style="font-size: 0.7rem;">@ticket.Issue</td>
+                            @*  <td>
+                                <div class="desc-column text-truncate mx-auto" title="@ticket.Description">
+                                    @ticket.Description
+                                </div>
+                            </td> *@
+                            <td>
+                                <span class="badge rounded-pill @(ticket.Priority == "Urgent" ? "bg-dark-red" : "bg-" + GetPriorityClass(ticket.Priority))" style="font-size: 0.65rem;">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td style="font-size: 0.75rem;">@ticket.CreatedAt.ToString("dd/MM/yy")<br /><small>@ticket.CreatedAt.ToString("hh:mm tt")</small></td>
+                            <td style="font-size: 0.75rem;">
+                                @* 🔥 Only show the time if it's actually Completed. Hide it for Re-Opened. *@
+                                @if (ticket.Status == "Completed" && ticket.CompletedAt.HasValue)
+                                {
+                                    <span>@ticket.CompletedAt.Value.ToString("dd/MM/yy")</span>
+                                    <br />
+                                    <small class="text-success">@ticket.CompletedAt.Value.ToString("hh:mm tt")</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">---</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm fw-800 rounded-pill btn-@GetStatusClass(ticket.Status)">
+                                    @ticket.Status
+                                </button>
+                            </td>
+                            <td>
+                                @if (ticket.Status == "Completed")
+                                {
+                                    @if (string.IsNullOrEmpty(ticket.UserConfirmation))
+                                    {
+                                        @* This button now automatically reappears for the second fix *@
+                                        <button class="btn btn-primary btn-sm rounded-pill fw-bold animate-pulse"
+                                                onclick="openConfirmModal('@ticket.Id', '@ticket.TicketId')">
+                                            <i class="bi bi-question-circle me-1"></i> Confirm
+                                        </button>
+                                    }
+                                    else if (ticket.UserConfirmation == "Yes")
+                                    {
+                                        <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Thankyou</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">---</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="ViewUserTicket" asp-controller="Ticket" asp-route-id="@ticket.Id" class="btn-view-standard">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+
+                        @* 3. Increment the counter inside the loop *@
+                        rowCounter++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="userConfirmModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-800" id="confirmModalTitle">Ticket Confirmation</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="decisionStep">
+                        <p class="text-center fs-5">Is your issue resolved for Ticket <b id="displayTicketId"></b>?</p>
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <button class="btn btn-success px-4 rounded-pill fw-bold" onclick="selectChoice('Yes')">Yes, It's Fixed</button>
+                            <button class="btn btn-outline-danger px-4 rounded-pill fw-bold" onclick="selectChoice('No')">No, Still Problem</button>
+                        </div>
+                    </div>
+
+                    <form asp-action="ConfirmResolution" asp-controller="Ticket" method="post" id="feedbackForm" style="display:none;">
+                        <input type="hidden" name="id" id="hiddenDbId" />
+                        <input type="hidden" name="choice" id="hiddenChoice" />
+
+                        <h6 id="feedbackTitle" class="fw-800 mb-2"></h6>
+                        <textarea name="userRemarks" class="form-control rounded-3 mb-3 shadow-sm" rows="3" required placeholder="Enter details here..."></textarea>
+
+                        <button type="submit" id="submitConfirmBtn" class="btn w-100 rounded-pill fw-bold shadow">Submit Response</button>
+                        <button type="button" class="btn btn-link btn-sm w-100 mt-2 text-muted" onclick="resetModal()">Back</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section Scripts {
+        <script>
+            function filterTickets(status) {
+                  document.querySelectorAll("#ticketTable tbody tr").forEach(row => {
+                      const rowStatus = row.getAttribute("data-status");
+
+                      if (status === "Total") {
+                          // Show everything
+                          row.style.display = "";
+                      }
+                      else if (status === "Pending") {
+                          // 🔥 UPDATED: Added "Re-Opened" to the Pending filter
+                          row.style.display = (rowStatus === "Pending" || rowStatus === "Open" || rowStatus === "Assigned" || rowStatus === "Re-Opened") ? "" : "none";
+                      }
+                      else if (status === "Pending from Police Station") {
+                          // Specifically show the Yellow status tickets
+                          row.style.display = (rowStatus === "Pending from Police Station") ? "" : "none";
+                      }
+                      else if (status === "Completed") {
+                          // Show Green status
+                          row.style.display = (rowStatus === "Completed") ? "" : "none";
+                      }
+                  });
+              }
+                   // Modal Data Population (Rest of your code remains the same)
+            document.getElementById('ticketModal').addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                document.getElementById('modalTicketId').innerText = btn.dataset.ticketid;
+                document.getElementById('modalStation').innerText = btn.dataset.station;
+                document.getElementById('modalReporterName').innerText = btn.dataset.reporter;
+                document.getElementById('modalIssue').innerText = btn.dataset.issue;
+                document.getElementById('modalDescription').innerText = btn.dataset.description;
+                document.getElementById('modalPriority').innerText = btn.dataset.priority;
+                document.getElementById('modalCreated').innerText = btn.dataset.created;
+            });
+        </script>
+
+        <script>
+            let confirmModal = new bootstrap.Modal(document.getElementById('userConfirmModal'));
+
+            function openConfirmModal(dbId, displayId) {
+                document.getElementById('hiddenDbId').value = dbId;
+                document.getElementById('displayTicketId').innerText = displayId;
+
+                // Clear previous entries
+                document.querySelector('textarea[name="userRemarks"]').value = '';
+
+                resetModal();
+                confirmModal.show();
+            }
+
+            function selectChoice(choice) {
+                document.getElementById('decisionStep').style.display = 'none';
+                document.getElementById('feedbackForm').style.display = 'block';
+                document.getElementById('hiddenChoice').value = choice;
+
+                const title = document.getElementById('feedbackTitle');
+                const btn = document.getElementById('submitConfirmBtn');
+                const textArea = document.querySelector('textarea[name="userRemarks"]');
+
+                if (choice === 'Yes') {
+                    title.innerHTML = '<i class="bi bi-emoji-smile text-success me-2"></i>Feedback for the Team:';
+                    btn.className = "btn btn-success w-100 rounded-pill fw-bold shadow";
+                    btn.innerText = "Confirm & Close Ticket";
+                    textArea.placeholder = "Optional: Any good words for the engineer?";
+                    textArea.required = false; // Optional for success
+                } else {
+                    title.innerHTML = '<i class="bi bi-exclamation-triangle text-danger me-2"></i>What is still pending?';
+                    btn.className = "btn btn-danger w-100 rounded-pill fw-bold shadow";
+                    btn.innerText = "Re-Open This Ticket";
+                    textArea.placeholder = "Please describe the remaining problem in detail...";
+                    textArea.required = true; // Required for re-opening
+                }
+            }
+
+            function resetModal() {
+                document.getElementById('decisionStep').style.display = 'block';
+                document.getElementById('feedbackForm').style.display = 'none';
+            }
+        </script>
+}

@@ -1,0 +1,165 @@
+﻿html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin: 0;
+    margin-bottom: 60px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+    background-color: #002147;
+    color: white;
+    padding-top: 20px;
+}
+
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: background-color 0.3s ease;
+    }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #004080;
+        }
+
+/* Logo Styling */
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+    .logo img {
+        max-width: 120px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+
+/* Main Content Offset */
+.main-content {
+    margin-left: 220px;
+    padding: 20px;
+}
+
+/* Footer */
+footer {
+    background: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Buttons & Focus */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Placeholder Styling */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* Responsive Sidebar Handling (Optional) */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .logo img {
+        max-width: 100px;
+    }
+}
+
+/* =============================== */
+/* 👇 Add gentle table styling here */
+/* =============================== */
+
+/* Applies to all table cells */
+table td, table th {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    vertical-align: middle !important;
+    font-size: 0.88rem;
+}
+
+/* Makes the table header stand out subtly */
+thead.table-dark th {
+    background-color: #343a40;
+    color: white;
+    font-size: 0.85rem;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+/* Add soft borders and rounded corners to the full table */
+table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+    /* Zebra striping for better readability */
+    table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    table tbody tr:hover {
+        background-color: #eef2f7;
+    }
+
+/* Reduce padding on action buttons */
+.btn-sm {
+    padding: 2px 6px;
+    font-size: 0.75rem;
+}
+/* 🔷 Align DataTables Search Box to the Left */
+.dataTables_filter {
+    text-align: left !important;
+    float: left !important;
+    margin-bottom: 10px;
+}
+
+    /* 🔷 Make the input look nice */
+    .dataTables_filter input {
+        width: 250px;
+        padding: 4px 8px;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+

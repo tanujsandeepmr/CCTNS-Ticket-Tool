@@ -1,0 +1,95 @@
+﻿@model List<logindemo.Models.Ticket>
+
+@{
+    ViewData["Title"] = $"CCTNS TEAM - {ViewBag.AdminName}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string adminName = ViewBag.AdminName as string ?? "N/A";
+    int completed = Model.Count;
+    int si = 1;
+}
+
+<style>
+    .admin-box {
+        background-color: #f2f9ff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    .admin-heading {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 26px;
+        text-transform: uppercase;
+    }
+
+    .admin-table th {
+        background-color: #004085;
+        color: #fff;
+        text-align: center;
+    }
+
+    .admin-table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .total-card {
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        padding: 15px;
+        background: #e6ffed;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+</style>
+
+<div class="container mt-4 admin-box">
+    <div class="admin-heading">@adminName Dashboard</div>
+
+    <div class="text-center mb-4">
+        <div class="col-md-4 offset-md-4 total-card">
+            <div class="display-6 mb-2">✅</div>
+            <div class="fw-bold">Total Tickets Completed</div>
+            <h3 class="text-success">@completed</h3>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover admin-table">
+                <thead>
+                    <tr>
+                        <th scope="col">SI No</th>
+                        <th scope="col">Ticket ID</th>
+                        <th scope="col">Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model)
+                    {
+                        <tr>
+                            <td>@si</td>
+                            <td>@(ticket.TicketId ?? "-")</td>
+                            <td>@(ticket.Issue ?? "-")</td>
+                        </tr>
+                        { si++; }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3 text-center">
+            No completed tickets found for @adminName.
+        </div>
+    }
+
+    <div class="mt-4 text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+            &larr; Back to Main Dashboard
+        </a>
+    </div>
+</div>

@@ -1,0 +1,341 @@
+﻿@model IEnumerable<logindemo.Models.Ticket>
+
+@{
+    ViewData["Title"] = "CCTNS - Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Get the current username (ensure it's lowercase for comparison)
+    var currentUserName = User.Identity?.Name?.ToLower();
+
+    // Check if the user is one of the two specific CCTNS accounts
+    bool isReadOnlyUser = currentUserName == "cctnscell1" || currentUserName == "cctnscell2" || currentUserName == "nodalofficer";
+    int count = 1;
+}
+
+@functions {
+    public string GetStatusClass(string status) => status switch
+    {
+        "Open" => "bg-modern-danger",
+        "Pending from Police Station" => "bg-modern-warning",
+        "Pending" => "bg-modern-secondary",
+        "Completed" => "bg-modern-success",
+        _ => "bg-modern-info"
+    };
+
+    public string GetPriorityClass(string priority) => priority switch
+    {
+        "Urgent" => "priority-urgent",
+        "High" => "bg-modern-danger",
+        "Medium" => "bg-modern-info",
+        "Low" => "bg-modern-secondary",
+        _ => "bg-modern-secondary"
+    };
+}
+
+<style>
+    :root {
+        --navy-blue: #002147;
+        --lite-grey: #f0f2f5;
+        --glass-border: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        background-color: var(--lite-grey) !important;
+        font-size: 0.85rem;
+    }
+
+    .filter-section {
+        background: #ffffff !important;
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+    }
+
+    .table-container-glass {
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        padding: 15px !important;
+    }
+
+    .table {
+        font-size: 0.82rem;
+    }
+
+        .table thead {
+            background: var(--navy-blue);
+            color: white;
+        }
+
+            .table thead th {
+                padding: 10px 5px !important;
+                font-weight: 500;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+            }
+
+        .table tbody td {
+            padding: 6px 4px !important;
+            vertical-align: middle;
+        }
+
+    .badge-modern {
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 4px;
+        color: white !important;
+        display: inline-block;
+        min-width: 85px;
+        font-size: 0.7rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .bg-modern-success {
+        background-color: #28a745 !important;
+    }
+
+    .bg-modern-danger {
+        background-color: #dc3545 !important;
+    }
+
+    .bg-modern-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .bg-modern-secondary {
+        background-color: #6c757d !important;
+    }
+
+    .bg-modern-info {
+        background-color: #0dcaf0 !important;
+    }
+
+    .priority-urgent {
+        background-color: #8b0000 !important;
+    }
+
+    .btn-export-excel {
+        border: 1.5px solid #0d6efd;
+        color: #0d6efd;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 5px 15px;
+        font-size: 0.85rem;
+        transition: 0.3s;
+    }
+
+    .dataTables_filter input {
+        width: 220px !important;
+        height: 32px !important;
+        font-size: 0.85rem !important;
+        border-radius: 5px !important;
+        padding-left: 35px !important;
+    }
+</style>
+
+<div class="container-fluid py-3">
+    <div class="text-center mb-3">
+        <h4 class="fw-bold" style="color: var(--navy-blue);">CREATED TICKETS REPORT</h4>
+    </div>
+
+   @*  <div class="row justify-content-center mb-4">
+        <div class="col-xl-11">
+            <div class="filter-section">
+                <form method="get" asp-controller="Admin" asp-action="ExportTicketsToExcel" class="row g-2 align-items-end justify-content-center">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold mb-1 small">Police Station</label>
+                        <input type="text" name="policeStation" class="form-control" placeholder="Station name" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold mb-1 small">Issue</label>
+                        <input type="text" name="issue" class="form-control" placeholder="Issue type" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label fw-bold mb-1 small">From</label>
+                        <input type="date" name="from" class="form-control" required />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label fw-bold mb-1 small">To</label>
+                        <input type="date" name="to" class="form-control" required />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-export-excel">📥 Export Excel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> *@
+
+
+    <div class="row mb-4 px-3">
+        <div class="col-md-12 table-container-glass">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-file-export me-2"></i> Report Export Tool
+            </h5>
+
+            @if (isReadOnlyUser)
+            {
+                @* --- PDF FORM (Visible to: cctnscell, sspcctns) --- *@
+                @* <div class="alert alert-info py-2 small shadow-sm mb-3">
+                    <i class="bi bi-info-circle me-2"></i> <strong>Report Mode:</strong> PDF Export only enabled for @User.Identity?.Name.
+                </div> *@
+
+                <form method="get" asp-controller="Ticket" asp-action="ExportTicketsToPdf" target="_blank" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Police Station Name</label>
+                        <input type="text" name="policeStation" class="form-control form-control-sm" placeholder="e.g. BAHOUR" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Issue</label>
+                        <input type="text" name="issue" class="form-control form-control-sm" placeholder="e.g. POCSO" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small fw-bold">From</label>
+                        <input type="date" name="from" class="form-control form-control-sm" required />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small fw-bold">To</label>
+                        <input type="date" name="to" class="form-control form-control-sm" required />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-4 fw-bold shadow-sm">
+                            <i class="bi bi-file-pdf me-1"></i> Export PDF Report
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                @* --- EXCEL FORM (Visible to all other Admins) --- *@
+                <form method="get" asp-controller="Admin" asp-action="ExportTicketsToExcel" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Police Station Name</label>
+                        <input type="text" name="policeStation" class="form-control form-control-sm" placeholder="e.g. BAHOUR" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Issue</label>
+                        <input type="text" name="issue" class="form-control form-control-sm" placeholder="e.g. POCSO" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small fw-bold">From</label>
+                        <input type="date" name="from" class="form-control form-control-sm" required />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small fw-bold">To</label>
+                        <input type="date" name="to" class="form-control form-control-sm" required />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-primary btn-sm px-4 fw-bold shadow-sm">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="table-container-glass">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center mb-0" id="reportDataTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>ID</th>
+                        <th>Station</th>
+                        <th>Region</th>
+                        <th>Reporter</th>
+                        <th>Issue</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th style="width: 100px;">Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td class="fw-bold text-primary">@ticket.TicketId</td>
+                            <td>@ticket.PoliceStationName</td>
+                            <td>@ticket.Region</td>
+                            <td>@ticket.ReporterName</td>
+                            <td>@ticket.Issue</td>
+                            <td class="text-truncate" style="max-width: 120px;">@ticket.Description</td>
+                            <td><span class="badge-modern @GetStatusClass(ticket.Status)">@ticket.Status</span></td>
+                            <td><span class="badge-modern @GetPriorityClass(ticket.Priority)" style="min-width: 70px;">@ticket.Priority</span></td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(ticket.PdfPath))
+                                {
+                                    <button type="button" class="btn btn-sm btn-info text-white rounded-pill fw-bold px-3 py-1 shadow-sm"
+                                            style="font-size: 11px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#pdfPreviewModal"
+                                            data-pdf="@Url.Content("~" + ticket.PdfPath)">
+                                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small" style="font-style: italic;">
+                                        <i class="bi bi-dash-circle"></i> No File
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white py-2">
+                <h6 class="modal-title small"><i class="bi bi-shield-check me-2"></i>Auth Document Preview</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="pdfFrame" src="" width="100%" height="650px" style="border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#reportDataTable').DataTable({
+                pageLength: 40,
+                lengthChange: false,
+                ordering: true,
+                language: {
+                    paginate: { previous: "«", next: "»" },
+                    search: "",
+                    searchPlaceholder: "Quick Search..."
+                },
+                dom: '<"top"f>rt<"bottom"ip><"clear">'
+            });
+
+            // Handle Modal Loading
+            const pdfModal = document.getElementById('pdfPreviewModal');
+            pdfModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const pdfUrl = button.getAttribute('data-pdf');
+                document.getElementById('pdfFrame').src = pdfUrl;
+            });
+
+            pdfModal.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('pdfFrame').src = '';
+            });
+        });
+    </script>
+}

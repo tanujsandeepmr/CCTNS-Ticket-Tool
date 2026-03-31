@@ -1,0 +1,308 @@
+﻿@model IEnumerable<logindemo.Models.Ticket>
+
+@{
+    ViewData["Title"] = "CCTNS - Live Ledger";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int count = 1;
+}
+
+@functions {
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Open" => "st-danger",
+            "Pending from Police Station" => "st-warning",
+            "Pending" => "st-secondary",
+            "Completed" => "st-success",
+            _ => "st-info"
+        };
+    }
+
+    public string GetPriorityClass(string priority)
+    {
+        return priority switch
+        {
+            "Urgent" => "pr-urgent",
+            "High" => "pr-high",
+            "Medium" => "pr-medium",
+            "Low" => "pr-low",
+            _ => "pr-low"
+        };
+    }
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+<style>
+    :root {
+        --header-black: #000000;
+        --text-black: #1a1a1a;
+        --soft-bg: #f4f7f9;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--soft-bg) !important;
+        font-family: 'Inter', sans-serif;
+        color: var(--text-black);
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+        padding: 15px; /* Reduced from 24px */
+    }
+
+    .table thead th {
+        background: var(--header-black);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.65rem; /* Reduced from 0.75rem */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px !important; /* Reduced padding */
+        border: none;
+    }
+
+    .table tbody td {
+        color: var(--text-black);
+        font-weight: 600;
+        padding: 8px 10px !important; /* Reduced from 1rem */
+        font-size: 0.8rem; /* Smaller body text */
+    }
+
+    .badge-modern {
+        font-weight: 800;
+        padding: 4px 10px; /* Thinner badges */
+        border-radius: 50px;
+        font-size: 0.6rem; /* Smaller badge text */
+        display: inline-block;
+        min-width: 85px; /* Smaller width */
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    /* Small Pill-Shaped PDF Button */
+    .btn-pdf-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px; /* Smaller button */
+        background-color: #fff;
+        color: #dc3545 !important;
+        font-size: 10px; /* Reduced font */
+        font-weight: 700;
+        text-transform: uppercase;
+        border: 1.5px solid #dc3545;
+        border-radius: 50px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    /* DataTables Search Bar Fix */
+    .dataTables_filter input {
+        border-radius: 50px !important;
+        padding: 6px 15px 6px 35px !important; /* Smaller search box */
+        border: 2px solid #cbd5e0 !important;
+        width: 280px !important; /* Shorter width */
+        font-size: 0.8rem;
+        background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23000' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 12px center !important;
+    }
+
+    .st-success {
+        background: #28a745;
+        color: #fff !important;
+    }
+
+    .st-danger {
+        background: #dc3545;
+        color: #fff !important;
+    }
+
+    .st-warning {
+        background: #f1c40f;
+        color: #000 !important;
+    }
+
+    .st-secondary {
+        background: #6c757d;
+        color: #fff !important;
+    }
+
+    .st-info {
+        background: #17a2b8;
+        color: #fff !important;
+    }
+
+    .pr-urgent {
+        background: #dc3545;
+        color: #fff !important;
+    }
+
+    .pr-high {
+        background: #ef4444;
+        color: #fff !important;
+    }
+
+    .pr-medium {
+        background: #3b82f6;
+        color: #fff !important;
+    }
+
+    .pr-low {
+        background: #94a3b8;
+        color: #fff !important;
+    }
+</style>
+
+<div class="container-fluid py-5 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-800 m-0 text-black" style="letter-spacing: -1px; text-transform: uppercase;">
+                CCTNS Service Ticket Registry
+            </h2>
+            <p class="text-dark fw-600 m-0">
+                @(Model.FirstOrDefault()?.PoliceStationName ?? "Authorized Station")
+                <span class="text-muted ms-2">| @Model.Count() Records</span>
+            </p>
+        </div>
+        <a href="/tickets/Ticket/Create" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> + Create Ticket
+        </a>
+    </div>
+
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table align-middle text-center mb-0" id="reportDataTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th style="width: 100px;">Ticket ID</th>
+                        <th>Reporter</th>
+                        <th>Issue</th>
+                        <th style="width: 120px;">Created</th>
+                        <th style="width: 120px;">Completed</th>
+                        <th style="width: 110px;">Status</th>
+                        <th style="width: 110px;">Priority</th>
+                        <th class="text-end" style="width: 80px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model)
+                    {
+                        <tr>
+                            <td class="text-black small fw-bold">@count</td>
+                            <td class="fw-800 text-black">#@ticket.TicketId</td>
+                            <td class="text-start">
+                                <div class="fw-800 text-black">@(string.IsNullOrEmpty(ticket.ReporterName) ? "N/A" : ticket.ReporterName)</div>
+                            </td>
+                            <td><span class="fw-700 text-black">@ticket.Issue</span></td>
+
+                            <td class="small fw-700 text-black">
+                                @ticket.CreatedAt.ToString("dd MMM yyyy")<br />
+                                <span class="text-muted fw-500">@ticket.CreatedAt.ToString("hh:mm tt")</span>
+                            </td>
+
+                            <td class="small fw-700 text-black">
+                                @if (ticket.CompletedAt.HasValue)
+                                {
+                                    @ticket.CompletedAt.Value.ToString("dd MMM yyyy")
+                                    <br />
+                                    <span class="text-success fw-500">@ticket.CompletedAt.Value.ToString("hh:mm tt")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fw-400">---</span>
+                                }
+                            </td>
+
+                            <td>
+                                <span class="badge-modern @GetStatusClass(ticket.Status)">
+                                    @ticket.Status
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-modern @GetPriorityClass(ticket.Priority)">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                @if (!string.IsNullOrEmpty(ticket.PdfPath))
+                                {
+                                    <button type="button"
+                                            class="btn-pdf-pill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#pdfPreviewModal"
+                                            data-pdf="@Url.Content("~" + ticket.PdfPath)">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </button>
+                                }
+                                else
+                                {
+                                    <small class="text-muted fw-bold" style="font-size: 10px;">AWAITING</small>
+                                }
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-dark text-white">
+                <h6 class="modal-title fw-bold text-uppercase">CCTNS Completion Report Preview</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="pdfIframe" src="" frameborder="0" style="width:100%; height:80vh;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 1. Initialize DataTable
+            $('#reportDataTable').DataTable({
+                pageLength: 30,
+                lengthChange: false,
+                ordering: true,
+                order: [[1, "desc"]],
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search ledger records..."
+                },
+                dom: '<"top"f>rt<"bottom"ip><"clear">'
+            });
+
+            // 2. PDF Modal Logic (Works with DataTables pagination)
+            const pdfModal = document.getElementById('pdfPreviewModal');
+            if (pdfModal) {
+                pdfModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const pdfUrl = button.getAttribute('data-pdf');
+                    const iframe = document.getElementById('pdfIframe');
+                    iframe.src = pdfUrl;
+                });
+
+                pdfModal.addEventListener('hidden.bs.modal', function () {
+                    document.getElementById('pdfIframe').src = "";
+                });
+            }
+        });
+    </script>
+}

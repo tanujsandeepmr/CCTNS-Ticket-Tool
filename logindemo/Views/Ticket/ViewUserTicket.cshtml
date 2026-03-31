@@ -1,0 +1,530 @@
+﻿@model logindemo.Models.Ticket
+
+@{
+    ViewData["Title"] = "Official Ticket View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --gov-navy: #001529;
+        --gov-blue: #003a8c;
+        --glass-white: rgba(255, 255, 255, 0.8);
+        --status-green: #28a745;
+        --status-red: #dc3545;
+    }
+
+    /* 🎯 THE CENTERING ENGINE */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: #f0f2f5 url('https://www.transparenttextures.com/patterns/cubes.png');
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #262626;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-viewport {
+        display: flex;
+        justify-content: center;
+        /* Changed align-items from center to flex-start */
+        align-items: flex-start;
+        padding: 20px 20px; /* Top padding is now 40px instead of being centered */
+        min-height: 100vh;
+    }
+
+    .content-container {
+        width: 100%;
+        max-width: 1100px;
+        /* Added a small negative margin to pull it even higher if needed */
+        margin-top: 10px;
+        animation: cardAppear 0.5s ease-out;
+    }
+
+    @@keyframes cardAppear {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 🚀 STEPPER */
+    .stepper-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        background: var(--glass-white);
+        backdrop-filter: blur(10px);
+        padding: 15px 30px;
+        border-radius: 15px;
+        border: 1px solid #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+        .step-item:not(:last-child):after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+    .step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #d9d9d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 5px;
+        position: relative;
+        z-index: 2;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .step-item.completed .step-icon {
+        background: var(--status-green);
+        border-color: var(--status-green);
+        color: white;
+    }
+
+    .step-item.active .step-icon {
+        border-color: var(--gov-blue);
+        color: var(--gov-blue);
+        background: #e6f7ff;
+    }
+
+    .step-item.completed.step-red .step-icon {
+        background: var(--status-red) !important;
+        border-color: var(--status-red) !important;
+    }
+
+    .step-item.completed.step-green .step-icon {
+        background: var(--status-green) !important;
+        border-color: var(--status-green) !important;
+    }
+
+    .step-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #8c8c8c;
+    }
+
+    /* 🏛️ MASTER CARD */
+    .ticket-master-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .sidebar-info {
+        background: linear-gradient(180deg, var(--gov-navy) 0%, var(--gov-blue) 100%);
+        color: white;
+        padding: 30px;
+        height: 100%;
+    }
+
+    .content-area {
+        padding: 40px;
+    }
+
+    .data-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 800;
+        color: #94a3b8;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .value-box-new {
+        background: #f8fafc;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+        color: #1e293b;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    .evidence-img-sm {
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+        height: 160px;
+        width: 100%;
+        object-fit: cover;
+        border: 3px solid #f1f5f9;
+    }
+
+        .evidence-img-sm:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+    .file-link-pill {
+        display: flex;
+        align-items: center;
+        padding: 12px 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        text-decoration: none !important;
+        color: #334155;
+        transition: all 0.2s;
+    }
+
+        .file-link-pill:hover {
+            background: #fff;
+            border-color: var(--gov-blue);
+            color: var(--gov-blue);
+            transform: translateX(5px);
+        }
+
+    .btn-manage {
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    /* 💎 PREMIUM BADGE SYSTEM */
+    .status-badge-container {
+        display: inline-block;
+    }
+
+    .status-badge-premium {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 10px;
+        position: relative;
+    }
+
+    /* Priority Colors */
+    .priority-high {
+        background: rgba(220, 53, 69, 0.2);
+        color: #ff8a95;
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+        .priority-high .pulse-dot {
+            background: #dc3545;
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            animation: pulse-red 2s infinite;
+        }
+
+    .priority-medium {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffe08a;
+        border-color: rgba(255, 193, 7, 0.3);
+    }
+
+        .priority-medium .pulse-dot {
+            background: #ffc107;
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+            animation: pulse-yellow 2s infinite;
+        }
+
+    .priority-low {
+        background: rgba(40, 167, 69, 0.2);
+        color: #8aff9e;
+        border-color: rgba(40, 167, 69, 0.3);
+    }
+
+        .priority-low .pulse-dot {
+            background: #28a745;
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+    @@keyframes pulse-red {
+        70%
+
+    {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+
+    }
+    /* ... animations for other colors follow same pattern ... */
+</style>
+
+<div class="main-viewport">
+    <div class="content-container">
+
+        <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+            <div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill mb-2" style="font-size: 0.65rem; letter-spacing: 1px;">USER CONSOLE</span>
+                <h3 class="fw-800 mb-0" style="color: var(--gov-navy);">Ticket Details <span class="text-muted fw-400">#@Model.TicketId</span></h3>
+            </div>
+            <a asp-controller="UserDashboard" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-600 shadow-sm bg-white">
+                <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="stepper-wrapper">
+            <div class="step-item completed">
+                <div class="step-icon"><i class="bi bi-check-lg"></i></div>
+                <div class="step-label">Submitted</div>
+            </div>
+            <div class="step-item @(Model.Status != "Pending from Police Station" ? "completed" : "active")
+                        @(Model.Status == "Completed" ? "step-green" : "step-red")">
+                <div class="step-icon">
+                    @(Model.Status != "Pending from Police Station" ? Html.Raw("<i class='bi bi-check-lg'></i>") : "2")
+                </div>
+                <div class="step-label">Processing</div>
+            </div>
+            <div class="step-item @(Model.Status == "Completed" ? "completed" : "")">
+                <div class="step-icon">3</div>
+                <div class="step-label">Resolved</div>
+            </div>
+        </div>
+
+        <div class="ticket-master-card">
+            <div class="row g-0">
+                <div class="col-md-3">
+                    <div class="sidebar-info d-flex flex-column">
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase" style="font-size:0.6rem; letter-spacing: 1px;">Current Status</label>
+                            <h4 class="fw-800 text-warning mb-0">@Model.Status</h4>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase d-block" style="font-size:0.6rem; letter-spacing: 1px;">Priority</label>
+                            <span class="badge @(Model.Priority == "High" ? "bg-danger" : "bg-light text-dark") px-3 rounded-pill">@Model.Priority</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase d-block" style="font-size:0.6rem; letter-spacing: 1px;">Reporter</label>
+                            <span class="fw-600"><i class="bi bi-person-circle me-1 opacity-50"></i> @Model.ReporterName</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase d-block" style="font-size:0.6rem; letter-spacing: 1px;">Assigned Station</label>
+                            <span class="fw-600 fs-6">@Model.PoliceStationEntity?.StationName</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="opacity-50 small fw-bold text-uppercase d-block" style="font-size:0.6rem; letter-spacing: 1px;">Created At</label>
+                            <span class="fw-500 small">@Model.CreatedAt.ToString("MMM dd, yyyy")<br />@Model.CreatedAt.ToString("hh:mm tt")</span>
+                        </div>
+
+                        @if (Model.Status == "Completed" && Model.CompletedAt.HasValue)
+                        {
+                            <div class="mb-4">
+                                <label class="opacity-50 small fw-bold text-uppercase d-block text-success" style="font-size:0.6rem; letter-spacing: 1px;">Resolved At</label>
+                                <span class="fw-600 small text-success">@Model.CompletedAt.Value.ToString("MMM dd, yyyy")<br />@Model.CompletedAt.Value.ToString("hh:mm tt")</span>
+                            </div>
+                        }
+
+                        <div class="mt-md-auto pt-4 border-top border-white border-opacity-10">
+                            @if (Model.Status != "Completed")
+                            {
+                                <label class="opacity-50 small fw-bold text-uppercase d-block mb-3" style="font-size:0.6rem; letter-spacing: 1px;">Manage Record</label>
+                                <div class="d-grid gap-2">
+                                    <a asp-action="EditTicket" asp-route-id="@Model.Id" class="btn btn-light btn-manage shadow-sm">
+                                        <i class="bi bi-pencil-square me-2"></i> Edit Ticket
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-manage text-white border-white border-opacity-25" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <i class="bi bi-trash3 me-2"></i> Delete Ticket
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                    <i class="bi bi-shield-lock-fill fs-4 d-block mb-1"></i>
+                                    <span class="small fw-bold text-uppercase" style="font-size: 0.6rem;">File Archived</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="content-area">
+                        <div class="row">
+                            <div class="col-12">
+                                <label class="data-label">Subject / Issue Title</label>
+                                <div class="value-box-new fw-800 fs-5">@Model.Issue</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="data-label">Detailed Description</label>
+                                <div class="value-box-new" style="white-space: pre-line; line-height: 1.6;">@Model.Description</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="data-label">Attachments & Supporting Evidence</label>
+                                <div class="p-4 border rounded-4 bg-light shadow-inner">
+                                    <div class="row g-3">
+                                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                                        {
+                                            <div class="col-md-5">
+                                                <img src="@Url.Content("~/" + Model.ImagePath)" class="evidence-img-sm shadow-sm"
+                                                     data-bs-toggle="modal" data-bs-target="#imgModal"
+                                                     onclick="updateModal('@Url.Content("~/" + Model.ImagePath)')">
+                                                <p class="text-center text-muted mt-2 mb-0 small"><i class="bi bi-zoom-in me-1"></i> Click to enlarge</p>
+                                            </div>
+                                        }
+                                        <div class="col-md-7">
+                                            @if (!string.IsNullOrEmpty(Model.ApprovalDocuments))
+                                            {
+                                                foreach (var file in Model.ApprovalDocuments.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                                {
+                                                    <a href="@Url.Content(file.Trim())" target="_blank" class="file-link-pill shadow-sm">
+                                                        <i class="bi bi-file-earmark-pdf-fill text-danger fs-4 me-3"></i>
+                                                        <div class="flex-grow-1">
+                                                            <div class="fw-bold">Supporting Document</div>
+                                                            <div class="text-muted" style="font-size: 0.7rem;">Click to open in new tab</div>
+                                                        </div>
+                                                        <i class="bi bi-box-arrow-up-right opacity-50"></i>
+                                                    </a>
+                                                }
+                                            }
+                                            else if (string.IsNullOrEmpty(Model.ImagePath))
+                                            {
+                                                <div class="text-center py-4 text-muted">
+                                                    <i class="bi bi-cloud-slash fs-2 d-block mb-2"></i>
+                                                    <span class="small">No attachments uploaded for this ticket.</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.Status == "Pending from Police Station")
+                            {
+                                <div class="col-12 mt-4">
+                                    <div class="p-4 rounded-4 border-warning bg-warning bg-opacity-10 border shadow-sm">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-warning rounded-circle p-2 me-3">
+                                                <i class="bi bi-chat-dots-fill text-white"></i>
+                                            </div>
+                                            <h6 class="mb-0 fw-800">Action Required: Police Feedback</h6>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-3 border mb-4 shadow-sm">
+                                            <label class="data-label text-warning">Officer Remarks</label>
+                                            <p class="mb-0 fw-600 text-dark">@Model.AdminRemarks</p>
+                                        </div>
+
+                                        <form asp-action="PoliceReply" asp-controller="Ticket" method="post" enctype="multipart/form-data">
+                                            <input type="hidden" name="ticketId" value="@Model.Id" />
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="small fw-800 mb-1">Upload Revised Screenshot</label>
+                                                    <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="small fw-800 mb-1">Additional Documents</label>
+                                                    <input type="file" name="ApprovalDocuments" multiple class="form-control" />
+                                                </div>
+                                                <div class="col-12 text-end mt-4">
+                                                    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow">
+                                                        Submit Revised Details <i class="bi bi-send-fill ms-2"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="text-end mb-2">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img id="viewImg" src="" class="img-fluid rounded-4 shadow-2xl"
+                     style="max-height: 85vh; border: 5px solid rgba(255,255,255,0.1);">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-body p-5 text-center">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-trash3-fill fs-1"></i>
+                </div>
+                <h5 class="fw-800 mb-2">Confirm Delete?</h5>
+                <p class="text-muted small mb-4">You are about to permanently remove this ticket. This action cannot be undone.</p>
+                <div class="d-grid gap-2">
+                    <form asp-action="DeleteTicket" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Delete Permanently</button>
+                    </form>
+                    <button type="button" class="btn btn-link text-decoration-none text-muted fw-600" data-bs-dismiss="modal">Keep Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateModal(src) {
+        document.getElementById('viewImg').src = src;
+    }
+</script>

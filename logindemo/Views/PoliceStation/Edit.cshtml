@@ -1,0 +1,72 @@
+﻿@model logindemo.Models.PoliceStation
+
+@{
+    ViewData["Title"] = "Edit Police Station";
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2 class="fw-800 m-0 text-black">Edit Police Station</h2>
+        <p class="text-muted fw-500 m-0">Modify details for @Model.StationName</p>
+    </div>
+
+    <div class="glass-card shadow-sm border-0">
+        <form asp-action="UpdateStation" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Station Code</label>
+                        <input type="text" name="stationCode" value="@Model.StationCode" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Station Name</label>
+                        <input type="text" name="stationName" value="@Model.StationName" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Region</label>
+                        <input type="text" name="Region" value="@Model.Region" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Location</label>
+                        <input type="text" name="Location" value="@Model.Location" class="form-control shadow-sm" required />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Contact Number</label>
+                        <input type="text" name="ContactNumber" value="@Model.ContactNumber" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Email Address</label>
+                        <input type="email" name="Email" value="@Model.Email" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">IP Address</label>
+                        <input type="text" name="IPAddress" value="@Model.IPAddress" class="form-control shadow-sm" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-700 text-muted small text-uppercase">Station In-charge</label>
+                        <input type="text" name="Incharge" value="@Model.Incharge" class="form-control shadow-sm" required />
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="PoliceTable" class="btn btn-outline-secondary fw-bold px-4 rounded-pill">Cancel</a>
+                <button type="submit" class="btn btn-dark fw-bold px-4 rounded-pill shadow">
+                    <i class="bi bi-check-circle me-1"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

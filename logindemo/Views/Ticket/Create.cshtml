@@ -1,0 +1,415 @@
+﻿@model logindemo.Models.Ticket
+
+@{
+    ViewData["Title"] = "Official Support Portal";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --gov-navy: #001529;
+        --gov-blue: #003a8c;
+        --accent-blue: #3b82f6;
+        --glass-white: rgba(255, 255, 255, 0.9);
+    }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        background: #f0f2f5 url('https://www.transparenttextures.com/patterns/cubes.png');
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-viewport {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .content-container {
+        width: 100%;
+        max-width: 850px;
+        animation: cardSlideUp 0.5s ease-out;
+    }
+
+    @@keyframes cardSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .create-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 21, 41, 0.1);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .card-header-gradient {
+        background: linear-gradient(135deg, var(--gov-navy), var(--gov-blue));
+        padding: 35px;
+        color: white;
+        text-align: center;
+    }
+
+    .form-body {
+        padding: 45px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: black;
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 12px 16px;
+        border: 2px solid #f1f5f9;
+        background-color: #f8fafc;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--gov-blue);
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(0, 58, 140, 0.1);
+        }
+
+    .bg-readonly {
+        background-color: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    #approvalDocumentsSection {
+        background: #fffbeb;
+        border: 1px dashed #f59e0b;
+        padding: 25px;
+        border-radius: 16px;
+        margin-top: 10px;
+        display: none;
+    }
+
+    .required-star {
+        color: #ef4444;
+        margin-left: 2px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--gov-navy), var(--gov-blue));
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        text-transform: uppercase;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 58, 140, 0.3);
+            color: white;
+        }
+</style>
+
+<div class="main-viewport">
+    <div class="content-container">
+        <div class="create-card">
+            <div class="card-header-gradient">
+                <div class="d-flex justify-content-center align-items-center mb-2">
+                    <i class="bi bi-plus-circle-dotted fs-2 me-3"></i>
+                    <h2 class="mb-0 fw-800">New Support Request</h2>
+                </div>
+                <p class="opacity-75 mb-0 small text-uppercase fw-bold">Puducherry Police CCTNS Helpdesk</p>
+            </div>
+
+            <div class="form-body">
+                <form asp-action="Create" enctype="multipart/form-data" method="post" id="createTicketForm">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-4">
+
+                     @*    <div class="col-md-4">
+                            <label class="form-label">Reference ID</label>
+                            <input asp-for="TicketId" class="form-control bg-readonly" readonly />
+                        </div> *@
+
+                        <!-- Ticket ID -->
+                        <div class="col-md-4">
+                            <label asp-for="TicketId" class="form-label">Ticket ID</label>
+                            <input asp-for="TicketId" class="form-control" readonly placeholder="CCTNS-AUTO-GENERATED" />
+                            <span asp-validation-for="TicketId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-8">
+                            <label asp-for="ReporterName" class="form-label">Reporter Name <span class="required-star">*</span></label>
+                            <input asp-for="ReporterName" class="form-control" placeholder="Enter officer name" required />
+                            <span asp-validation-for="ReporterName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Police Station <span class="required-star">*</span></label>
+                            <select asp-for="PoliceStationCode" class="form-select" id="PoliceStationDropdown" required>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <option value="">-- Select Station --</option>
+                                    @foreach (var ps in ViewBag.PoliceStations)
+                                    {
+                                        <option value="@ps.StationCode" data-name="@ps.StationName" data-region="@ps.Region">@ps.StationName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@ViewBag.UserStationCode" selected data-region="@ViewBag.UserRegion" data-name="@ViewBag.PoliceStationName">@ViewBag.PoliceStationName</option>
+                                }
+                            </select>
+                            @* CRITICAL FIX: Changed name="PoliceStationName" to asp-for="PoliceStationName" *@
+                            <input type="hidden" asp-for="PoliceStationName" id="StationNameBox" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">District / Region</label>
+                            <input type="text" id="RegionBox" name="Region" class="form-control bg-readonly" readonly value="@ViewBag.UserRegion" />
+                        </div>
+
+                        <div class="col-md-8">
+                            <label asp-for="Issue" class="form-label">Issue Category <span class="required-star">*</span></label>
+                            <select asp-for="Issue" class="form-select" asp-items="ViewBag.Issues" required id="IssueSelect">
+                                <option value="">-- Choose Issue Category --</option>
+                            </select>
+                            <span asp-validation-for="Issue" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Auto-Priority</label>
+                            <input asp-for="Priority" class="form-control bg-readonly fw-800" readonly id="PriorityBox" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label">Detailed Description <span class="required-star">*</span></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" maxlength="250" placeholder="Details..." required></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Evidence / Screenshot</label>
+                            <input asp-for="ImageFile" type="file" accept="image/*" class="form-control" onchange="previewImage(this)" />
+                            <img id="imagePreview" class="image-preview shadow-sm mt-2" style="max-height: 150px; display: none;" />
+                        </div>
+
+                        <div class="col-12" id="approvalDocumentsSection">
+                            <div class="d-flex align-items-center mb-2 text-warning">
+                                <i class="bi bi-shield-lock-fill fs-5 me-2"></i>
+                                <span class="fw-800 small text-uppercase">Authorization Documents Required</span>
+                            </div>
+                            <input type="file" name="ApprovalFiles" multiple class="form-control" accept=".pdf,image/*" id="ApprovalFilesInput" />
+                        </div>
+
+                        @* Admin-only fields *@
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="col-md-6">
+                                <label asp-for="CreatedAt" class="form-label">Created At</label>
+                                <input type="datetime-local" class="form-control" name="CreatedAt" />
+                                <span asp-validation-for="CreatedAt" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CompletedAt" class="form-label">Completed At</label>
+                                <input asp-for="CompletedAt" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="CompletedAt" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CompletedBy" class="form-label">Completed By</label>
+                                <select asp-for="CompletedBy" class="form-select">
+                                    <option value="">-- Select User --</option>
+                                    <option value="Vignesh">Vignesh</option>
+                                    <option value="Pushparaj">Pushparaj</option>
+                                    <option value="Ramkumar">Ramkumar</option>
+                                    <option value="Chandru">Chandru</option>
+                                </select>
+                                <span asp-validation-for="CompletedBy" class="text-danger small"></span>
+                            </div>
+                        }
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-submit w-100 shadow">
+                                <i class="bi bi-send-check-fill me-2"></i> Register Official Ticket
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+   <script>
+    (function () {
+        // ---------- Configuration Lists (Matches C# Backend) ----------
+        const HIGH_ISSUES = [
+            "SERVER INSTALLATION", 
+            "RESTORE DB BACKUP", 
+            "CHARGESHEET NOT ABLE TO SUBMIT", 
+            "FIR NOT ABLE TO SUBMIT", 
+            "COMPETENT AUTHORITY WORK TASK 1", 
+            "COMPETENT AUTHORITY WORK TASK 2", 
+            "REASSIGNING CASES", 
+            "ARREST MEMO NOT ABLE TO SUBMIT"
+        ];
+
+        const MEDIUM_ISSUES = [
+            "CCTNS TESTING ENVIRNOMENT",
+            "CCTNS REPORTS DASHBOARD",
+            "MODIFICATION OF SECTIONS", 
+            "CLIENT INSTALLATION", 
+            "OFFLINE LOGIN ISSUE", 
+            "ONLINE NOT WORKING", 
+            "UPDATE WITNESS ADDRESS", 
+            "UPDATE COMPLAINANT ADDRESS", 
+            "UPDATE ACCUSED AGE", 
+            "GD ENTRY", 
+            "GD DATE & TIME", 
+            "SYNC / SYNCHRONIZATION", 
+            "DGSP & IGSP DASHBOARD", 
+            "CRIME DETAILS FORM", 
+            "ARREST MEMO UNABLE TO ADD WITNESS", 
+            "PROPERTY SEIZURE NOT ABLE TO SUBMIT", 
+            "FINAL FORM", 
+            "VILLAGE CRIME DETAILS FORM", 
+            "ADD ACT AND SECTION", 
+            "BNS SECTION NOT AVAILABLE", 
+            "SHO ISSUE"
+        ];
+
+        const APPROVAL_REQUIRED = [
+            "POCSO", 
+            "MODIFICATION OF SECTIONS", 
+            "REASSIGNING CASES", 
+            "NEW USER CREATION",
+            "COMPETENT AUTHORITY WORK TASK 1",
+            "COMPETENT AUTHORITY WORK TASK 2",
+            "ADD ACT AND SECTION",
+            "GD DATE & TIME"
+        ];
+
+        // ---------- Helper Functions ----------
+        function normalize(issue) { 
+            return (issue || "").toString().trim().toUpperCase(); 
+        }
+
+        function getPriority(issue) {
+            const u = normalize(issue);
+            if (u === "POCSO") return "Urgent";
+            if (HIGH_ISSUES.includes(u)) return "High";
+            if (MEDIUM_ISSUES.includes(u)) return "Medium";
+            return "Low";
+        }
+
+        // ---------- DOM Elements ----------
+        const stationDropdown = document.getElementById("PoliceStationDropdown");
+        const regionBox = document.getElementById("RegionBox");
+        const stationNameBox = document.getElementById("StationNameBox");
+        const issueSelect = document.getElementById("IssueSelect");
+        const priorityBox = document.getElementById("PriorityBox");
+        const approvalSection = document.getElementById("approvalDocumentsSection");
+        const approvalInput = document.getElementById("ApprovalFilesInput");
+
+        // Update Station and Region fields
+        function updateStationFields() {
+            if (!stationDropdown) return;
+            const selected = stationDropdown.options[stationDropdown.selectedIndex];
+            if (selected) {
+                if (regionBox) regionBox.value = selected.getAttribute("data-region") || "";
+                if (stationNameBox) stationNameBox.value = selected.getAttribute("data-name") || selected.text;
+            }
+        }
+
+        // Update Priority and Approval requirements
+        function handleIssueChange() {
+            if (!issueSelect) return;
+            const val = issueSelect.value;
+            const normVal = normalize(val);
+
+            // Update Priority Display
+            if (priorityBox) {
+                priorityBox.value = getPriority(val);
+            }
+
+            // Toggle Approval Documents Section
+            if (approvalSection) {
+                if (APPROVAL_REQUIRED.includes(normVal)) {
+                    approvalSection.style.display = "block";
+                    if (approvalInput) approvalInput.setAttribute("required", "required");
+                } else {
+                    approvalSection.style.display = "none";
+                    if (approvalInput) {
+                        approvalInput.removeAttribute("required");
+                        approvalInput.value = ""; // Reset file selection if hidden
+                    }
+                }
+            }
+        }
+
+        // ---------- Event Listeners ----------
+        if (stationDropdown) {
+            stationDropdown.addEventListener("change", updateStationFields);
+        }
+
+        if (issueSelect) {
+            issueSelect.addEventListener("change", handleIssueChange);
+        }
+
+        // Run once on load to initialize fields (useful for post-backs or edits)
+        document.addEventListener("DOMContentLoaded", function() {
+            updateStationFields();
+            handleIssueChange();
+        });
+    })();
+
+    // Image Preview logic (Global Scope)
+    function previewImage(input) {
+        const preview = document.getElementById("imagePreview");
+        if (!preview) return;
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { 
+                preview.src = e.target.result; 
+                preview.style.display = 'block'; 
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+</script>
+}

@@ -1,0 +1,166 @@
+﻿@model List<logindemo.Models.PoliceStation>
+@{
+    ViewData["Title"] = "Police Station Registry";
+    int count = 1;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-800 m-0 text-black">Police Station Registry</h2>
+            <p class="text-muted fw-500 m-0">Browse and manage jurisdiction details</p>
+        </div>
+        @* <a asp-action="Create" class="btn btn-dark fw-bold px-4 rounded-pill shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Add New Station
+        </a> *@
+    </div>
+
+    <div class="glass-card mb-4 border-0 shadow-sm p-3">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Search station name..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="sortSelect" class="form-select fw-600 text-muted">
+                    <option value="">Sort by...</option>
+                    <option value="nameAsc">Name (A-Z)</option>
+                    <option value="nameDesc">Name (Z-A)</option>
+                    <option value="codeAsc">Code (Asc)</option>
+                    <option value="codeDesc">Code (Desc)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container-glass mb-5">
+        <div class="table-responsive">
+            <table id="policeStationTable" class="table table-hover align-middle text-center mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">S.No</th>
+                        <th>Station Code</th>
+                        <th>Station Name</th>
+                        @* <th style="width: 200px;">Actions</th> *@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var policestation in Model)
+                    {
+                        <tr>
+                            <td class="fw-700 text-muted">@count</td>
+                            <td><span class="badge bg-light text-dark border px-3">@policestation.StationCode</span></td>
+                            <td class="station-name fw-800 text-dark text-uppercase" style="font-size: 0.85rem;">
+                                @policestation.StationName
+                            </td>
+                            <td>
+                               @*  <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-dark fw-bold px-3 rounded-pill" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#viewModal" 
+                                            onclick="loadStation(@policestation.Id)">
+                                        <i class="bi bi-eye me-1"></i> View
+                                    </button>
+
+                                    <a asp-controller="PoliceStation" asp-action="Edit" asp-route-id="@policestation.Id" 
+                                       class="btn btn-sm btn-outline-secondary fw-bold px-3 rounded-pill">
+                                        <i class="bi bi-pencil me-1"></i> Edit
+                                    </a>
+                                </div> *@
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header border-0 bg-dark text-white px-4 py-3" style="border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-building me-2"></i> Station Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="modalContent">
+                </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadStation(id) {
+            // Show a professional loading state inside the modal
+            $("#modalContent").html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-dark" role="status"></div>
+                    <p class="mt-3 text-muted fw-bold">Retrieving Station Data...</p>
+                </div>
+            `);
+            
+            // Perform the AJAX load
+            $("#modalContent").load('/PoliceStation/ViewDetails/' + id, function(response, status, xhr) {
+                if (status == "error") {
+                    $("#modalContent").html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Error:</strong> Could not load station details.
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
+            const sortSelect = document.getElementById("sortSelect");
+            const tableBody = document.querySelector("#policeStationTable tbody");
+
+            function updateSerialNumbers() {
+                let serial = 1;
+                tableBody.querySelectorAll("tr").forEach(row => {
+                    if (row.style.display !== "none") {
+                        row.cells[0].textContent = serial++;
+                    }
+                });
+            }
+
+            searchInput.addEventListener("keyup", function () {
+                const filter = this.value.toLowerCase();
+                tableBody.querySelectorAll("tr").forEach(row => {
+                    const name = row.querySelector(".station-name").textContent.toLowerCase();
+                    row.style.display = name.includes(filter) ? "" : "none";
+                });
+                updateSerialNumbers();
+            });
+
+            sortSelect.addEventListener("change", function () {
+                const rows = Array.from(tableBody.querySelectorAll("tr"));
+                const option = this.value;
+
+                rows.sort((a, b) => {
+                    const nameA = a.querySelector(".station-name").textContent.trim().toLowerCase();
+                    const nameB = b.querySelector(".station-name").textContent.trim().toLowerCase();
+                    const codeA = a.cells[1].textContent.trim();
+                    const codeB = b.cells[1].textContent.trim();
+
+                    if (option === "nameAsc") return nameA.localeCompare(nameB);
+                    if (option === "nameDesc") return nameB.localeCompare(nameA);
+                    if (option === "codeAsc") return codeA.localeCompare(codeB);
+                    if (option === "codeDesc") return codeB.localeCompare(codeA);
+                    return 0;
+                });
+
+                rows.forEach(row => tableBody.appendChild(row));
+                updateSerialNumbers();
+            });
+        });
+    </script>
+}
